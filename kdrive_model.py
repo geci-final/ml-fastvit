@@ -8,13 +8,14 @@ class KDriveModel(torch.nn.Module):
     # extra inputs :
     # past trajectory (x,y)*2 = 20
     # velocity (x,y) = 2
+    # rotation (w,x,y,z) = 4
     # acceleration (x,y)=2
     # steering =1
     # throttle =1
     # brake =1
-    # input_dim=27
+    # input_dim=31
     # output= (x,y)*10 timestamp=20
-    def __init__(self, extra_in_feat=27, out_feat=20, bmodel_name="fastvit_t8", bmodel_weight="weights/fastvit_t8.pth.tar"):
+    def __init__(self, extra_in_feat=31, out_feat=20, bmodel_name="fastvit_t8", bmodel_weight="weights/fastvit_t8.pth.tar"):
         super().__init__()
         self._is_eval = False
         self.base_model = create_model(bmodel_name)
