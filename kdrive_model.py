@@ -5,7 +5,16 @@ from models.modules.mobileone import reparameterize_model
 
 
 class KDriveModel(torch.nn.Module):
-    def __init__(self, extra_in_feat=3, out_feat=3, bmodel_name="fastvit_t8", bmodel_weight="weights/fastvit_t8.pth.tar"):
+    # extra inputs :
+    # past trajectory (x,y)*2 = 20
+    # velocity (x,y) = 2
+    # acceleration (x,y)=2
+    # steering =1
+    # throttle =1
+    # brake =1
+    # input_dim=27
+    # output= (x,y)*10 timestamp=20
+    def __init__(self, extra_in_feat=27, out_feat=20, bmodel_name="fastvit_t8", bmodel_weight="weights/fastvit_t8.pth.tar"):
         super().__init__()
         self._is_eval = False
         self.base_model = create_model(bmodel_name)
@@ -23,6 +32,14 @@ class KDriveModel(torch.nn.Module):
         x = self.base_model(x)
         x = torch.cat([x, extra_inp], dim=1)
         return self.head(x)
+
+    def freeze_base_model(self):
+        for param in self.base_model.parameters():
+            param.requires_grad = False
+
+    def unfreeze_base_model(self):
+        for param in self.base_model.parameters():
+            param.requires_grad = True
 
     def reparametrize(self):
         self.base_model = reparameterize_model(self.base_model)
